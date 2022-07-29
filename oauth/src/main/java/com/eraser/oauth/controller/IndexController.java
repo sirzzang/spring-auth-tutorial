@@ -3,6 +3,9 @@ package com.eraser.oauth.controller;
 import com.eraser.oauth.domain.User;
 import com.eraser.oauth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,20 +30,20 @@ public class IndexController {
     }
 
     @GetMapping("/admin")
-    public String admin() {
+    public @ResponseBody String admin() {
         return "admin";
     }
 
     @GetMapping("/manager")
-    public String manager() {
+    public @ResponseBody String manager() {
         return "manager";
     }
 
     // SecurityConfig 파일 생성 후 기존 스프링 시큐리티 로그인 페이지는 작동하지 않음
     // 원래 스프링 시큐리티가 아래 주소를 낚아 챔
-    @GetMapping("/login")
+    @GetMapping("/loginForm")
     public String login() {
-        return "login";
+        return "loginForm";
     }
 
     @GetMapping("/joinForm")
@@ -48,6 +51,7 @@ public class IndexController {
         return "joinForm";
     }
 
+    // 회원가입
     @PostMapping("/join")
     public String join(User user) {
         user.setRole("ROLE_USER");
@@ -59,8 +63,19 @@ public class IndexController {
 
         userRepository.save(user);
 
-        return "redirect:/login"; // 회원가입 완료 시 리다이렉트
+        return "redirect:/loginForm"; // 회원가입 완료 시 리다이렉트
     }
 
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/info")
+    public @ResponseBody String info() {
+        return "personalInfo";
+    }
+
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')") // 허용되지 않은 유저일 경우 403
+    @GetMapping("/data")
+    public @ResponseBody String data() {
+        return "dataInfo";
+    }
 
 }

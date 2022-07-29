@@ -1,0 +1,1 @@
+update User set role = 'ROLE_ADMIN' where id = 3;
