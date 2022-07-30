@@ -41,7 +41,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 로그인 주소 호출(스프링 시큐리티가 낚아 채서 대신 로그인 진행)
                 .loginProcessingUrl("/login")
                 // loginForm 페이지에서 로그인 성공 시 메인 페이지로, 다른 페이지에서 로그인 시도 시 그 페이지로
-                .defaultSuccessUrl("/");
+                .defaultSuccessUrl("/")
+                .and()
+                // oauth 로그인과 일반 로그인 페이지 동일하게 설정
+                .oauth2Login()
+                .loginPage("/loginForm");
     }
 
 }

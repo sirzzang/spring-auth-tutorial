@@ -16,7 +16,7 @@ spring:
 
   mvc:
     view: # view resolver 설정
-      # mustache 의존성 등록 시 view resolver 설정 생략 가능
+      # mustache 의존성 등록 시 view resolver 설정 생략 가능oah
       prefix: /templates/
       suffix: .html
 
@@ -27,3 +27,14 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 356484738353-pmgq5n7nuv1ldrravnirmaesgo9gk4k0.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+            - email
+            - profile
