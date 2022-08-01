@@ -16,13 +16,13 @@ spring:
 
   mvc:
     view: # view resolver 설정
-      # mustache 의존성 등록 시 view resolver 설정 생략 가능oah
+      # mustache 의존성 등록 시 view resolver 설정 생략 가능
       prefix: /templates/
       suffix: .html
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
       dialect: org.hibernate.dialect.MySQL8Dialect
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl

@@ -1,4 +1,4 @@
-package com.eraser.oauth.auth;
+package com.eraser.oauth.config.auth;
 
 import com.eraser.oauth.domain.User;
 import com.eraser.oauth.repository.UserRepository;

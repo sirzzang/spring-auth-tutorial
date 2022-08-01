@@ -1,16 +1,17 @@
 package com.eraser.oauth.config;
 
-import org.springframework.context.annotation.Bean;
+import com.eraser.oauth.config.oauth.PrincipalOauth2UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 @EnableWebSecurity // 스프링 시큐리티 필터가 스프링 필터 체인에 등록
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true) // secured, preAuthorize, postAuthorize 어노테이션 활성화
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     // TODO: deprecated adapter
@@ -21,10 +22,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      * @return
      */
 
-    @Bean
-    public BCryptPasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
-    }
+    private final PrincipalOauth2UserService principalOauth2UserService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -45,7 +43,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 // oauth 로그인과 일반 로그인 페이지 동일하게 설정
                 .oauth2Login()
-                .loginPage("/loginForm");
+                .loginPage("/loginForm")
+                .userInfoEndpoint()
+                // 구글 로그인 완료 후 후처리
+                .userService(principalOauth2UserService);
     }
 
 }
