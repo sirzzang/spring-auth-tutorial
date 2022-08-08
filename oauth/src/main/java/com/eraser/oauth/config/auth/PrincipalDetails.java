@@ -65,6 +65,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
+        // TODO: 람다식 변경
         authorities.add(new GrantedAuthority() {
             @Override
             public String getAuthority() {

@@ -1,6 +1,10 @@
 package com.eraser.oauth.config.oauth;
 
 import com.eraser.oauth.config.auth.PrincipalDetails;
+import com.eraser.oauth.config.oauth.provider.FacebookUserInfo;
+import com.eraser.oauth.config.oauth.provider.GoogleUserInfo;
+import com.eraser.oauth.config.oauth.provider.NaverUserInfo;
+import com.eraser.oauth.config.oauth.provider.Oauth2UserInfo;
 import com.eraser.oauth.domain.User;
 import com.eraser.oauth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +15,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -46,21 +52,48 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
          * 2. AccessToken
          * 3. AdditionalParameters
          */
-        log.info("userRequest.ClientRegistration: {}", userRequest.getClientRegistration());
-        log.info("userRequest.AccessToken: {}", userRequest.getAccessToken());
-        log.info("userRequest.AdditionalParameters: {}", userRequest.getAdditionalParameters());
-        log.info("userRequest.getAttributes: {}, 상위 클래스에 있음", super.loadUser(userRequest).getAttributes());
+//        log.info("userRequest.ClientRegistration: {}", userRequest.getClientRegistration());
+//        log.info("userRequest.AccessToken: {}", userRequest.getAccessToken());
+//        log.info("userRequest.AdditionalParameters: {}", userRequest.getAdditionalParameters());
+//        log.info("userRequest.getAttributes: {}, 상위 클래스에 있음", super.loadUser(userRequest).getAttributes());
 
         // 유저 정보를 받아올 수 있음
         OAuth2User oAuth2User = super.loadUser(userRequest);
         log.info("oauth user info: {}", oAuth2User.getAttributes());
 
-        String provider = userRequest.getClientRegistration().getClientId(); // google
-        String providerId = oAuth2User.getAttribute("sub");
-        String username = provider + "_" + providerId; // google_112042671032297239028
+        // 소셜 로그인 제공자 별 회원 정보
+        Oauth2UserInfo oauth2UserInfo = null;
+        String clientRegistrationId = userRequest.getClientRegistration().getRegistrationId();
+        if (userRequest.getClientRegistration().getRegistrationId().equals("google")) {
+            oauth2UserInfo = new GoogleUserInfo(oAuth2User.getAttributes());
+        } else if (userRequest.getClientRegistration().getRegistrationId().equals("facebook")) {
+            oauth2UserInfo = new FacebookUserInfo(oAuth2User.getAttributes());
+        } else if (userRequest.getClientRegistration().getRegistrationId().equals("naver")) {
+            /**
+             * 네이버 반환값 형식
+             * response: {
+             *     resultCode,
+             *     message,
+             *     response: {
+             *         id,
+             *         name,
+             *         email,
+             *         ...
+             *     }
+             * }
+             */
+            oauth2UserInfo = new NaverUserInfo((Map) oAuth2User.getAttributes().get("response"));
+        } else {
+            System.out.println("google, facebook, naver 로그인만 지원합니다.");
+        }
+
+        // 유저 객체에 저장할 정보
+        String provider = oauth2UserInfo.getProvider();
+        String providerId = oauth2UserInfo.getProviderId();
+        String username = provider + "_" + providerId;
         String password = bCryptPasswordEncoder.encode("getInThere"); // oauth2 로그인의 경우 크게 의미가 없음
-        String email = oAuth2User.getAttribute("email");
-        String role = "ROLE_USER"; // 서비스에 맞게 변경
+        String email = oauth2UserInfo.getEmail();
+        String role = "ROLE_USER"; // 서비스 별 이용 권한에 맞게 변경
 
         // 저장할 유저 객체
         User userEntity = userRepository.findByUsername(username);
