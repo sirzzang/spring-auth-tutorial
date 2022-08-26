@@ -20,6 +20,8 @@ public class CorsConfig {
     @Bean
     public CorsFilter corsFilter() {
 
+        System.out.println("cors 필터 시작");
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         CorsConfiguration config = new CorsConfiguration();
@@ -30,6 +32,8 @@ public class CorsConfig {
 
         // api로 들어오는 요청은 위의 설정을 따름
         source.registerCorsConfiguration("/api/**", config);
+
+        System.out.println("cors 필터 끝");
 
         return new CorsFilter(source); // 스프링 필터에 해당 필터 등록 필요
     }
