@@ -1,5 +1,6 @@
 package com.eraser.jwt.config;
 
+import com.eraser.jwt.config.jwt.JwtAuthenticationFilter;
 import com.eraser.jwt.filter.AuthTestFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,8 @@ import org.springframework.web.filter.CorsFilter;
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter /** TODO: deprecated 해결 */ {
 
+    // TODO: WebSecurityConfigurerAdapter는 AuthenticationManger를 들고 있음
+
     private final CorsFilter corsFilter;
 
     @Override
@@ -25,7 +28,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter /** TODO: depre
 //        http.addFilterAfter(new ThirdFilter(), BasicAuthenticationFilter.class);
 
         // security filter 이전에 인증 필터 적용
-        http.addFilterBefore(new AuthTestFilter(), SecurityContextPersistenceFilter.class);
+//        http.addFilterBefore(new AuthTestFilter(), SecurityContextPersistenceFilter.class);
 
         http.csrf().disable();
 
@@ -39,9 +42,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter /** TODO: depre
                 // 로그인 설정
                 .formLogin().disable() // JWT 서버이므로 폼 태그를 이용한 로그인 설정 해제
                 .httpBasic().disable() // HTTP Basic 로그인 방식 설정 해제
-                .authorizeRequests()
+                .addFilter(new JwtAuthenticationFilter(authenticationManager())) // 로그인 실행
 
                 // API 엔드포인트별 권한 설정
+                .authorizeRequests()
                 .antMatchers("/api/v1/user/**")
                 .access("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
                 .antMatchers("/api/v1/manager/**")
